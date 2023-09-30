@@ -51,12 +51,6 @@ int main() {
             continue; // Si es un comando interno, no necesitas crear un proceso hijo
         }
 
-        if(input == "exit") break; // Salir del intérprete de comandos
-
-        vector<string> tokens = split(input, ' ');
-
-        if(executeInternalCommand(tokens)) continue; // Ejecuta comando interno
-
         // Verificar si la entrada contiene una canalización
         bool has_pipe = false;
         for(const string& token : tokens){
