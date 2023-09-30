@@ -22,18 +22,23 @@ bool executeInternalCommand(const std::vector<std::string>& tokens){
         char user[LOGIN_NAME_MAX];
         getlogin_r(user, LOGIN_NAME_MAX);
         string historyFile = "/home/" + string(user) + "/.bash_history"; 
+        string historyAuxFile = "/home/" + string(user) + "/.bash_history"; 
         ifstream file(historyFile);
+        ifstream auxFile(historyAuxFile);
 
         if (!file.is_open()) {
             cerr << "No se pudo abrir el archivo de historial de comandos." << endl;
             return 1;
         }
         string line;
-        int lineNumber = 1;
-
+        int maxNumber = 1, auxNumber = 1, lineNumber = 1;
+        while (getline(auxFile, line)) maxNumber++;
         while (getline(file, line)) {
-            cout << "   " << lineNumber << ":  " << line << endl;
-            lineNumber++;
+            if(auxNumber >= maxNumber - 30){
+                cout << "   " << lineNumber<< ":  " << line << endl;
+                lineNumber++;
+            }
+            auxNumber++;
         }
 
         // Cerrar el archivo
