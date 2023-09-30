@@ -27,7 +27,7 @@ string getPrompt(){
     if(absPath.find(homePath) != string::npos){
         absPath.replace(absPath.find(homePath), homePath.length(), "~");
     }
-    return string(user_aux) + "@" + string(host_aux) + ":" + absPath + "\n $ ";
+    return "\033[1;32m" + string(user_aux) + "@" + string(host_aux) + "\033[0m" + ":" + "\033[1;34m" +absPath + "\033[0m" +"\n $ ";
 }
 
 
