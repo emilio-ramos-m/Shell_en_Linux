@@ -1,5 +1,6 @@
 #include <sstream>
 #include <filesystem>
+#include <limits.h>
 #include "pipes.cpp"
 #include "internalCommand.cpp"
 
@@ -16,19 +17,23 @@ vector<string> split(const string& input, char delimiter) {
     return tokens;
 }
 
-string relativePath(){
+string getPrompt(){
+    char host_aux[HOST_NAME_MAX];
+    char user_aux[LOGIN_NAME_MAX];
+    gethostname(host_aux, HOST_NAME_MAX);
+    getlogin_r(user_aux, LOGIN_NAME_MAX);
     string absPath = filesystem::current_path();
     string homePath = getenv("HOME");
     if(absPath.find(homePath) != string::npos){
         absPath.replace(absPath.find(homePath), homePath.length(), "~");
     }
-    return absPath;
+    return string(user_aux) + "@" + string(host_aux) + ":" + absPath + "$ ";
 }
 
 
 int main() {
     while (true) {
-        cout << "mishell:"<<relativePath()<<"$ ";
+        cout <<getPrompt();
         string input;
         getline(cin, input);
 
