@@ -28,15 +28,15 @@ bool executeInternalCommand(const std::vector<std::string>& tokens){
             cerr << "No se pudo abrir el archivo de historial de comandos." << endl;
             return 1;
         }
+
         string line;
-        
         //Variables auxiliares para calcular el maximo de lineas
         int maxNumber = 1;
         string historyAuxFile = historyFile; 
         ifstream auxFile(historyAuxFile);
         while (getline(auxFile, line)) maxNumber++;
         //
-        
+
         int maxLines = 30; //Cantidad de lineas a imprimir con el comando
         int lineCount = 1, lineNumber = 1;
         while (getline(file, line)) {
