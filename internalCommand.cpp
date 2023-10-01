@@ -1,7 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <unistd.h>
-#include <fstream>
+#include "daemon.cpp"
 
 // Función para ejecutar comandos internos
 bool executeInternalCommand(const std::vector<std::string>& tokens){
@@ -17,8 +14,7 @@ bool executeInternalCommand(const std::vector<std::string>& tokens){
             }
         }
         return true;
-    }
-    if(tokens[0] == "history"){
+    }else if(tokens[0] == "history"){
         char user[LOGIN_NAME_MAX];
         getlogin_r(user, LOGIN_NAME_MAX);
         string historyFile = "/home/" + string(user) + "/.bash_history"; 
@@ -50,6 +46,12 @@ bool executeInternalCommand(const std::vector<std::string>& tokens){
         // Cerrar el archivo
         file.close();
         return true;
+    } else if(tokens[0] == "daemon"){
+        if (tokens.size() != 3) {
+            std::cerr << "Uso: " << tokens[0] << " <intervalo_segundos> <tiempo_total_segundos>" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        daemon(tokens);
     }
     return false;
 }
