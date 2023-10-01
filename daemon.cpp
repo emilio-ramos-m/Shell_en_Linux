@@ -71,7 +71,7 @@ void daemon(const vector<string>& tokens) {
     daemonize();
 
     // Inicializar el sistema de registro
-    openlog("mi_demonio", LOG_PID, LOG_USER);
+    openlog("matt_daemon", LOG_PID, LOG_USER);
 
     // Loop para medir y registrar la información
     for (int tiempoTranscurrido = 0; tiempoTranscurrido < tiempoTotal; tiempoTranscurrido += intervalo) {
