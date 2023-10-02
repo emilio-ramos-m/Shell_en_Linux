@@ -32,8 +32,18 @@ bool executeInternalCommand(const std::vector<std::string>& tokens){
         ifstream auxFile(historyAuxFile);
         while (getline(auxFile, line)) maxNumber++;
         //
-
-        int maxLines = 30; //Cantidad de lineas a imprimir con el comando
+        int maxLines;
+        
+        if (tokens.size()<= 1) maxLines = 30;
+        else {
+            for(char c : tokens[1]){
+                if(!isdigit(c)){
+                    cout << "Argumento '" << tokens[1] << "' invalido. Segundo argumento debe ser numero." << std::endl;
+                    return false;
+                }
+            }
+            maxLines = stoi(tokens[1]); //Cantidad de lineas a imprimir con el comando
+        }
         int lineCount = 1, lineNumber = 1;
         while (getline(file, line)) {
             if(lineCount >= maxNumber - maxLines){
@@ -42,7 +52,6 @@ bool executeInternalCommand(const std::vector<std::string>& tokens){
             }
             lineCount++;
         }
-
         // Cerrar el archivo
         file.close();
         return true;
