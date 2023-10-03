@@ -57,10 +57,11 @@ bool executeInternalCommand(const std::vector<std::string>& tokens){
         return true;
     } else if(tokens[0] == "daemon"){
         if (tokens.size() != 3) {
-            std::cerr << "Uso: " << tokens[0] << " <intervalo_segundos> <tiempo_total_segundos>" << std::endl;
-            exit(EXIT_FAILURE);
+            cout << "Uso: " << tokens[0] << " <intervalo_segundos> <tiempo_total_segundos>" << endl;
+            return false;
         }
         daemon(tokens);
+        return true;
     }
     return false;
 }

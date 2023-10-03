@@ -80,6 +80,7 @@ int main() {
 
                 // Ejecutar el comando
                 execvp(args[0], args.data());
+                
                 perror("execvp");
                 return 1;
             }else{ // Proceso padre

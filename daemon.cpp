@@ -15,7 +15,8 @@ void daemonize() {
 
     // Terminar el proceso padre
     if (pid > 0) {
-        exit(EXIT_SUCCESS);
+        return;
+        //exit(EXIT_SUCCESS);
     }
 
     // Cambiar el umask

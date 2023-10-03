@@ -15,7 +15,7 @@ void pipeCommands(char*** commands, int num_commands){
             exit(EXIT_FAILURE);
         }
     }
-    
+
     // Ejecutar comandos en secuencia
     for(int i = 0; i < num_commands; i++){
         child_pid = fork();
@@ -23,7 +23,7 @@ void pipeCommands(char*** commands, int num_commands){
             perror("fork");
             exit(EXIT_FAILURE);
         }
-        
+
         if(child_pid == 0){ // Proceso hijo
             // Redirigir la entrada de la tubería anterior
             if(i > 0){
@@ -47,7 +47,6 @@ void pipeCommands(char*** commands, int num_commands){
                 close(pipes[i - 1][0]);
                 close(pipes[i - 1][1]);
             }
-            
             wait(NULL); // Esperar al proceso hijo actual
         }
     }
@@ -75,7 +74,6 @@ void executeCommandWithPipe(const vector<string>& input_tokens) {
     }
 
     num_commands = commands.size();
-
     // Convertir comandos en un formato adecuado para pipeCommands
     char*** cmd_array = new char**[num_commands];
     for(int i = 0; i < num_commands; ++i){
@@ -86,10 +84,8 @@ void executeCommandWithPipe(const vector<string>& input_tokens) {
         }
         cmd_array[i][cmd_tokens.size()] = nullptr;
     }
-     
     // Ejecutar comandos con canalización
     pipeCommands(cmd_array, num_commands);
-    
     // Liberar la memoria
     for(int i = 0; i < num_commands; ++i){
         delete[] cmd_array[i];
