@@ -38,20 +38,16 @@ int main() {
         string input;
         getline(cin, input);
 
-        if (input.empty()) {
-            continue; // Ignorar líneas en blanco
-        }
+        if (input.empty()) continue; // Ignorar líneas en blanco
 
-        if (input == "exit") {
-            break; // Salir del intérprete de comandos
-        }
+        if (input == "exit") break; // Salir del intérprete de comandos
 
         std::vector<std::string> tokens = split(input, ' ');
 
-        if (executeInternalCommand(tokens)) {
-            continue; // Si es un comando interno, no necesitas crear un proceso hijo
-        }
+        // Si es un comando interno, no necesitas crear un proceso hijo
+        if (executeInternalCommand(tokens)) continue; 
 
+        /*
         // Verificar si la entrada contiene una canalización
         bool has_pipe = false;
         for(const string& token : tokens){
@@ -91,7 +87,7 @@ int main() {
                     cerr << "Comando interrumpido por la señal: " << signal_num << endl;
                 }
             }
-        }
+        }*/
     }
 
     return 0;
