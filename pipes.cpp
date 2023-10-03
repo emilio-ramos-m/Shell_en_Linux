@@ -15,7 +15,6 @@ void pipeCommands(char*** commands, int num_commands){
             exit(EXIT_FAILURE);
         }
     }
-    cout << "pipes: " << pipes << endl;
     // Ejecutar comandos en secuencia
     for(int i = 0; i < num_commands; i++){
         child_pid = fork();
@@ -23,7 +22,6 @@ void pipeCommands(char*** commands, int num_commands){
             perror("fork");
             exit(EXIT_FAILURE);
         }
-        cout << "child_pid: " << child_pid << endl;
         if(child_pid == 0){ // Proceso hijo
             // Redirigir la entrada de la tubería anterior
             if(i > 0){
@@ -47,9 +45,7 @@ void pipeCommands(char*** commands, int num_commands){
                 close(pipes[i - 1][0]);
                 close(pipes[i - 1][1]);
             }
-            cout << "a: " << endl;
             wait(NULL); // Esperar al proceso hijo actual
-            cout << "b: " << endl;            
         }
     }
     
@@ -87,7 +83,6 @@ void executeCommandWithPipe(const vector<string>& input_tokens) {
         }
         cmd_array[i][cmd_tokens.size()] = nullptr;
     }
-    cout << "cmd_array: " << cmd_array << endl;
     // Ejecutar comandos con canalización
     pipeCommands(cmd_array, num_commands);
     
