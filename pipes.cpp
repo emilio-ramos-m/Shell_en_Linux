@@ -22,7 +22,6 @@ void pipeCommands(char*** commands, int num_commands){
             perror("fork");
             exit(EXIT_FAILURE);
         }
-
         if(child_pid == 0){ // Proceso hijo
             // Redirigir la entrada de la tubería anterior
             if(i > 0){
@@ -47,7 +46,6 @@ void pipeCommands(char*** commands, int num_commands){
                 close(pipes[i - 1][1]);
             }
             wait(NULL); // Esperar al proceso hijo actual
-            cout << "b: " << endl;            
         }
     }
     
