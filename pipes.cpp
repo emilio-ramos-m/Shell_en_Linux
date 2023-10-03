@@ -4,91 +4,61 @@
 
 using namespace std;
 
-void pipeCommands(char*** commands, int num_commands){
-    int pipes[num_commands - 1][2]; // Array de tuberías
-    pid_t child_pid;
+void executeCommands(vector<vector<std::string>> commands){
+    size_t i, n = commands.size();
+    int prev_pipe, pfds[2];
+        
+    prev_pipe = STDIN_FILENO;
 
-    // Crear las tuberías necesarias
-    for(int i = 0; i < num_commands - 1; i++){
-        if(pipe(pipes[i]) == -1){
-            perror("pipe");
-            exit(EXIT_FAILURE);
-        }
-    }
-    // Ejecutar comandos en secuencia
-    for(int i = 0; i < num_commands; i++){
-        child_pid = fork();
-        if(child_pid == -1){
-            perror("fork");
-            exit(EXIT_FAILURE);
-        }
-        if(child_pid == 0){ // Proceso hijo
-            // Redirigir la entrada de la tubería anterior
-            if(i > 0){
-                dup2(pipes[i - 1][0], STDIN_FILENO);
-                close(pipes[i - 1][1]);
+    for(i = 0; i < n - 1; i++){
+        pipe(pfds);
+        pid_t pid = fork();
+        if(pid == 0){
+            // Redireccionar pipe anterior a stdin
+            if(prev_pipe != STDIN_FILENO){
+                dup2(prev_pipe, STDIN_FILENO);
+                close(prev_pipe);
             }
 
-            // Redirigir la salida a la tubería actual (excepto para el último comando)
-            if(i < num_commands - 1){
-                dup2(pipes[i][1], STDOUT_FILENO);
-                close(pipes[i][0]);
+            // Redireccionar stdout to pipe actual
+            dup2(pfds[1], STDOUT_FILENO);
+            close(pfds[0]);
+            close(pfds[1]);
+                
+            // Cast de string a char*
+            vector<char*> cmd_args;
+            for (const auto& arg : commands[i]) {
+            cmd_args.push_back(const_cast<char*>(arg.c_str()));
             }
-            
-            // Ejecutar el comando actual
-            execvp(commands[i][0], commands[i]);
-            perror("execvp"); // Esto solo se ejecutará si hay un error en execvp
-            exit(EXIT_FAILURE);
-        }else{ // Proceso padre
-            // Cerrar los extremos no utilizados de la tubería
-            if(i > 0){
-                close(pipes[i - 1][0]);
-                close(pipes[i - 1][1]);
-            }
-            wait(NULL); // Esperar al proceso hijo actual
-        }
-    }
-    
-}
-
-void executeCommandWithPipe(const vector<string>& input_tokens) {
-    int num_commands = 0;
-    vector<vector<string>> commands;
-
-    // Dividir los tokens en comandos y construir un vector de vectores de tokens
-    vector<string> current_command;
-    for(const string& token : input_tokens){
-        if(token == "|"){
-            if(!current_command.empty()){
-                commands.push_back(current_command);
-                current_command.clear();
-            }
+            cmd_args.push_back(nullptr);
+                
+            // Ejecutar comando
+            execvp(cmd_args[0], cmd_args.data());
+            perror("execvp failed");
+            exit(1);
         }else{
-            current_command.push_back(token);
+            // Proceso padre
+            waitpid(pid, NULL, 0);  
+            close(prev_pipe);      
+            prev_pipe = pfds[0];   
+            close(pfds[1]);       
         }
     }
-    if(!current_command.empty()){
-        commands.push_back(current_command);
+   
+    // Redireccionar pipe anterior a stdin
+    if (prev_pipe != STDIN_FILENO) {
+        dup2(prev_pipe, STDIN_FILENO);
+        close(prev_pipe);
     }
-
-    num_commands = commands.size();
-
-    // Convertir comandos en un formato adecuado para pipeCommands
-    char*** cmd_array = new char**[num_commands];
-    for(int i = 0; i < num_commands; ++i){
-        vector<string>& cmd_tokens = commands[i];
-        cmd_array[i] = new char*[cmd_tokens.size() + 1];
-        for(size_t j = 0; j < cmd_tokens.size(); ++j){
-            cmd_array[i][j] = const_cast<char*>(cmd_tokens[j].c_str());
-        }
-        cmd_array[i][cmd_tokens.size()] = nullptr;
+    vector<char*> last_cmd_args;
+    for (const auto& arg : commands[i]) {
+        last_cmd_args.push_back(const_cast<char*>(arg.c_str()));
     }
-    // Ejecutar comandos con canalización
-    pipeCommands(cmd_array, num_commands);
+    last_cmd_args.push_back(nullptr);
     
-    // Liberar la memoria
-    for(int i = 0; i < num_commands; ++i){
-        delete[] cmd_array[i];
-    }
-    delete[] cmd_array;
+    
+    // Ejecutar comando
+    execvp(last_cmd_args[0], last_cmd_args.data());        
+    perror("execvp failed");
+    exit(1);
 }
