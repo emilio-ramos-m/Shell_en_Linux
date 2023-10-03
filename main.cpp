@@ -60,7 +60,7 @@ int main() {
                 break;
             }
         }
-
+        cout << "has_pipe: " << has_pipe << endl;
         if(has_pipe) executeCommandWithPipe(tokens);    // Ejecutar comandos con canalización
         else{
             // Crear un nuevo proceso

@@ -15,7 +15,6 @@ void pipeCommands(char*** commands, int num_commands){
             exit(EXIT_FAILURE);
         }
     }
-
     // Ejecutar comandos en secuencia
     for(int i = 0; i < num_commands; i++){
         child_pid = fork();
@@ -48,6 +47,7 @@ void pipeCommands(char*** commands, int num_commands){
                 close(pipes[i - 1][1]);
             }
             wait(NULL); // Esperar al proceso hijo actual
+            cout << "b: " << endl;            
         }
     }
     
