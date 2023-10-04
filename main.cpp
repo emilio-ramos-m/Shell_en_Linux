@@ -1,6 +1,7 @@
 #include <sstream>
 #include <filesystem>
 #include <limits.h>
+#include <sys/wait.h>
 #include "pipes.cpp"
 #include "internalCommand.cpp"
 
@@ -53,19 +54,13 @@ int main() {
 
         // Si es un comando interno, no necesitas crear un proceso hijo
         if (executeInternalCommand(commands)) continue; 
+
         pid_t pid = fork();
         if (pid == 0) {
-            executeCommands(commands);    // Ejecutar comandos con canalización
+            executeCommands(commands);  
         }else{
-            int status;
-            waitpid(pid, &status, 0);
-            if(WIFSIGNALED(status)){
-                // El proceso hijo fue interrumpido por una señal
-                int signal_num = WTERMSIG(status);
-                cerr << "Comando interrumpido por la señal: " << signal_num << endl;
-            }
+            waitpid(pid, NULL, 0);
         }
     }
-
     return 0;
 }

@@ -3,7 +3,7 @@
 // Función para ejecutar comandos internos
 bool executeInternalCommand(const std::vector<std::vector<std::string>>& tokens){
     if(tokens[0][0] == "cd"){
-        if(tokens.size() < 2){
+        if(tokens[0].size() < 2){
             string homePath = getenv("HOME");
             if(chdir(homePath.c_str()) != 0){
                 perror("chdir");
@@ -34,7 +34,7 @@ bool executeInternalCommand(const std::vector<std::vector<std::string>>& tokens)
         //
         int maxLines;
         
-        if (tokens.size()<= 1) maxLines = 30;
+        if (tokens[0].size()<= 1) maxLines = 30;
         else {
             for(char c : tokens[0][1]){
                 if(!isdigit(c)){
@@ -56,7 +56,7 @@ bool executeInternalCommand(const std::vector<std::vector<std::string>>& tokens)
         file.close();
         return true;
     } else if(tokens[0][0] == "daemon"){
-        if (tokens.size() != 3) {
+        if (tokens[0].size() != 3) {
             std::cerr << "Uso: " << tokens[0][0] << " <intervalo_segundos> <tiempo_total_segundos>" << std::endl;
             exit(EXIT_FAILURE);
         }
