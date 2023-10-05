@@ -1,20 +1,20 @@
 #include "daemon.cpp"
 
 // Función para ejecutar comandos internos
-bool executeInternalCommand(const std::vector<std::string>& tokens){
-    if(tokens[0] == "cd"){
-        if(tokens.size() < 2){
+bool executeInternalCommand(const std::vector<std::vector<std::string>>& tokens){
+    if(tokens[0][0] == "cd"){
+        if(tokens[0].size() < 2){
             string homePath = getenv("HOME");
             if(chdir(homePath.c_str()) != 0){
                 perror("chdir");
             }
         }else{
-            if(chdir(tokens[1].c_str()) != 0){
+            if(chdir(tokens[0][1].c_str()) != 0){
                 perror("chdir");
             }
         }
         return true;
-    }else if(tokens[0] == "history"){
+    }else if(tokens[0][0] == "history"){
         char user[LOGIN_NAME_MAX];
         getlogin_r(user, LOGIN_NAME_MAX);
         string historyFile = "/home/" + string(user) + "/.bash_history"; 
@@ -34,15 +34,15 @@ bool executeInternalCommand(const std::vector<std::string>& tokens){
         //
         int maxLines;
         
-        if (tokens.size()<= 1) maxLines = 30;
+        if (tokens[0].size()<= 1) maxLines = 30;
         else {
-            for(char c : tokens[1]){
+            for(char c : tokens[0][1]){
                 if(!isdigit(c)){
-                    cout << "Argumento '" << tokens[1] << "' invalido. Segundo argumento debe ser numero." << std::endl;
+                    cout << "Argumento '" << tokens[0][1] << "' invalido. Segundo argumento debe ser numero." << std::endl;
                     return false;
                 }
             }
-            maxLines = stoi(tokens[1]); //Cantidad de lineas a imprimir con el comando
+            maxLines = stoi(tokens[0][1]); //Cantidad de lineas a imprimir con el comando
         }
         int lineCount = 1, lineNumber = 1;
         while (getline(file, line)) {
@@ -55,13 +55,12 @@ bool executeInternalCommand(const std::vector<std::string>& tokens){
         // Cerrar el archivo
         file.close();
         return true;
-    } else if(tokens[0] == "daemon"){
-        if (tokens.size() != 3) {
-            cout << "Uso: " << tokens[0] << " <intervalo_segundos> <tiempo_total_segundos>" << endl;
-            return false;
+    } else if(tokens[0][0] == "daemon"){
+        if (tokens[0].size() != 3) {
+            std::cerr << "Uso: " << tokens[0][0] << " <intervalo_segundos> <tiempo_total_segundos>" << std::endl;
+            exit(EXIT_FAILURE);
         }
-        daemon(tokens);
-        return true;
+        daemon(tokens[0]);
     }
     return false;
 }
