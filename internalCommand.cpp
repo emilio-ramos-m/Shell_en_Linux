@@ -14,53 +14,74 @@ bool executeInternalCommand(const std::vector<std::vector<std::string>>& tokens)
             }
         }
         return true;
-    }else if(tokens[0][0] == "history"){
-        char user[LOGIN_NAME_MAX];
-        getlogin_r(user, LOGIN_NAME_MAX);
-        string historyFile = "/home/" + string(user) + "/.bash_history"; 
-        ifstream file(historyFile);
+    }
+    
+    else if(tokens[0][0] == "history"){
+        if(tokens[0].size() >= 3 ){
+            cout << "Entrada debe ser de la forma history o history <-número_de_líneas>" << endl;
+            return true;
+        }else{
+            char user[LOGIN_NAME_MAX];
+            getlogin_r(user, LOGIN_NAME_MAX);
+            string historyFile = "/home/" + string(user) + "/.bash_history"; 
+            ifstream file(historyFile);
+            if (!file.is_open()) {
+                cout << "No se pudo abrir el archivo de historial de comandos." << endl;
+                return true;
+            }
 
-        if (!file.is_open()) {
-            cerr << "No se pudo abrir el archivo de historial de comandos." << endl;
-            return 1;
-        }
-
-        string line;
-        //Variables auxiliares para calcular el maximo de lineas
-        int maxNumber = 1;
-        string historyAuxFile = historyFile; 
-        ifstream auxFile(historyAuxFile);
-        while (getline(auxFile, line)) maxNumber++;
-        //
-        int maxLines;
-        
-        if (tokens[0].size()<= 1) maxLines = 30;
-        else {
-            for(char c : tokens[0][1]){
-                if(!isdigit(c)){
-                    cout << "Argumento '" << tokens[0][1] << "' invalido. Segundo argumento debe ser numero." << std::endl;
-                    return false;
+            string line;
+            int lineNumber = 1;
+            if(tokens[0].size() == 1){
+                while (getline(file, line)){
+                    cout << "  " << lineNumber<< ":  " << line << endl;
+                    lineNumber++; 
                 }
             }
-            maxLines = stoi(tokens[0][1]); //Cantidad de lineas a imprimir con el comando
-        }
-        int lineCount = 1, lineNumber = 1;
-        while (getline(file, line)) {
-            if(lineCount >= maxNumber - maxLines){
-                cout << "   " << lineNumber<< ":  " << line << endl;
-                lineNumber++;
+            if(tokens[0].size() == 2){
+                string arg2 = tokens[0][1];
+                // valida que segundo argumento sea de la forma <-numero>
+                if(arg2[0] != '-') {
+                    cout << "Entrada debe ser de la forma history <-número_de_líneas>" << endl;
+                    file.close();
+                    return true;
+                }else{
+                    arg2.erase(0,1); //Tiene - , lo elimina para verificar la siguiente parte
+                    for(char c : arg2){
+                        if(!isdigit(c)){
+                            cout << "Argumento '" << arg2 << "' invalido. Segundo argumento debe ser numero." << endl;
+                            file.close();
+                            return true;
+                        }
+                    }
+                    //Variables auxiliares
+                    int maxNumber = 1;
+                    string historyAuxFile = historyFile; 
+                    ifstream auxFile(historyAuxFile);
+                    while (getline(auxFile, line)) maxNumber++;
+
+                    int maxLines = stoi(arg2), lineCount = 1;
+                    while (getline(file, line)) {
+                        if(lineCount >= maxNumber - maxLines){
+                            cout << "  " << lineCount << ":  " << line << endl;
+                            lineNumber++;
+                        }
+                    lineCount++;
+                    }
+                }
             }
-            lineCount++;
+            file.close();
         }
-        // Cerrar el archivo
-        file.close();
         return true;
-    } else if(tokens[0][0] == "daemon"){
+    } 
+    
+    else if(tokens[0][0] == "daemon"){
         if (tokens[0].size() != 3) {
-            std::cerr << "Uso: " << tokens[0][0] << " <intervalo_segundos> <tiempo_total_segundos>" << std::endl;
-            exit(EXIT_FAILURE);
+            cout << "Uso: " << tokens[0][0] << " <intervalo_segundos> <tiempo_total_segundos>" << endl;
+            return true;
         }
         daemon(tokens[0]);
     }
+
     return false;
 }
