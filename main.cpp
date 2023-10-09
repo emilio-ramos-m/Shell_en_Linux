@@ -57,7 +57,7 @@ int main() {
 
         pid_t pid = fork();
         if (pid == 0) {
-            if(executeCommands(commands)) 
+            if(executeCommands(commands) == -1) 
                 cout << "Comando no encontrado: " << commands[0][0] << endl;
             return 0;
         }else{
